@@ -29,6 +29,7 @@
 			<h1><img src="img/common/logo.svg"><span>자율주행차량 공공 통합 실시간 관제 시스템</span></h1>
 			<div class="menu left">
 				<input hidden id="vinMismatch" />
+				<input hidden id="selectedKey" />
 				<a id="vehicleStatus">
 					<i><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path
@@ -515,12 +516,133 @@
 					<div class="area">
 						<div class="head">
 							<div class="tabs">
-								<a id="accountMngBtn" class="active">차량·단말 관리</a>
-								<a href="#">계정 관리</a>
+								<a class="active">차량·단말 관리</a>
+								<a id="accountMngBtn">계정 관리</a>
 							</div>
 							<div class="right">
 								<button class="btn-close"><span class="hidden">닫기</span></button>
 							</div>
+						</div>
+						<div class="cont" id="Cont1">
+							<div class="table-title">
+								<h3>미장착 단말 관리</h3>
+								<div class="hits">
+									<div class="num">등록 가능 단말 <strong id="availableDeviceNum">6</strong> 대</div>
+								</div>
+							</div>
+							<div class="table-title">
+								<div class="search">
+									<input id="search_input_device" type="text" placeholder="단말번호로 검색" class="inp">
+									<button id="searchDeviceBtn" class="btn-srch"><span
+											class="hidden">검색</span></button>
+								</div>
+								<select id="devicePageSizeSelect" class="select">
+									<option value="2">2건씩 보기</option>
+									<option value="5">5건씩 보기</option>
+									<option value="10">10건씩 보기</option>
+									<option value="20">20건씩 보기</option>
+									<option value="50">50건씩 보기</option>
+								</select>
+							</div>
+							<div class="table">
+								<table>
+									<colgroup>
+										<col style="width:50%">
+										<col style="width:50%">
+									</colgroup>
+									<thead>
+										<tr>
+											<th>단말정보</th>
+											<th>차량 장착</th>
+										</tr>
+									</thead>
+									<tbody id="deviceList">
+
+
+									</tbody>
+								</table>
+								<div class="paging">
+									<div id="pagerDeviceList" class="pager"></div>
+								</div>
+							</div>
+
+							<div class="table-title">
+								<h3>차량 관리</h3>
+								<div class="hits">
+									<div class="num">사용중 <strong id="beingUsedNum">6</strong> 대</div>
+									<div class="num">사용종료 <strong id="useEndNum">6</strong> 대</div>
+								</div>
+							</div>
+							<div class="table-title">
+								<div class="search">
+									<input id="search_input_vehicle" type="text" placeholder="차량명, 단말번호로 검색"
+										class="inp">
+									<button id="searchVehicleBtn" class="btn-srch"><span
+											class="hidden">검색</span></button>
+								</div>
+								<div class="right">
+									<button id="deleteVehicle" class="btn-line">삭제 <img
+											src="img/common/alert_minus.svg"></button>
+									<select id="vehiclePageSizeSelect" class="select">
+										<option value="2">2건씩 보기</option>
+										<option value="5">5건씩 보기</option>
+										<option value="10">10건씩 보기</option>
+										<option value="20">20건씩 보기</option>
+										<option value="50">50건씩 보기</option>
+									</select>
+								</div>
+							</div>
+							<div class="table">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>차량명</th>
+											<th>단말정보</th>
+											<th>PCL</th>
+											<th>사용구분</th>
+											<th>차량 장착 해제</th>
+										</tr>
+									</thead>
+									<tbody id="vehicleList">
+										<!--
+										<tr>
+											<td>
+												<label><input type="checkbox" class="checkbox">
+													<div><em></em></div>
+												</label>
+											</td>
+											<td>123가4567</td>
+											<td>
+												von-U52
+												ABC000001
+											</td>
+											<td>J1939</td>
+											<td>사용중</td>
+											<td><button class="btn">차량·단말기 연동</button></td>
+										</tr>
+										<tr>
+											<td>
+												<label><input type="checkbox" class="checkbox">
+													<div><em></em></div>
+												</label>
+											</td>
+											<td>123가4567</td>
+											<td>
+												von-U52
+												ABC000001
+											</td>
+											<td>J1939</td>
+											<td>사용중</td>
+											<td><button class="btn">단말 연동 해제</button></td>
+										</tr>-->
+									</tbody>
+								</table>
+								<div class="paging">
+									<div id="pagerVehicleList" class="pager"></div>
+								</div>
+							</div>
+
 						</div>
 					</div>
 
@@ -530,7 +652,7 @@
 					<div class="area">
 						<div class="head">
 							<div class="tabs">
-								<a href="#">차량·단말 관리</a>
+								<a id="vehicleDeviceMngBtn">차량·단말 관리</a>
 								<a href="#" class="active">계정 관리</a>
 							</div>
 							<div class="right">
@@ -836,7 +958,7 @@
 				<div class="popup" style="max-width:70rem">
 					<div class="popup-head">
 						<h3>차량·단말기 연동</h3>
-						<button class="btn-close" onclick="javascript:popupClose('Modal2');"><span
+						<button class="btn-close-popup" onclick="javascript:popupClose('Modal2');"><span
 								class="hidden">닫기</span></button>
 					</div>
 					<div class="popup-body">
@@ -850,20 +972,28 @@
 								<tbody>
 									<tr>
 										<th>단말기 일련번호</th>
-										<td>ABA131313</td>
+										<td id="deviceSnInput"></td>
 									</tr>
 									<tr>
-										<th>차량명</th>
-										<td><input type="text" class="inp" placeholder="차량번호, 별칭 등을 입력하세요"
-												style="width:60%"></td>
+										<th>차량번호</th>
+										<td><input id="vehiclePlateNumInput" type="text" class="inp"
+												placeholder="차량번호, 별칭 등을 입력하세요" style="width:60%"></td>
 									</tr>
 									<tr>
 										<th>PCL 종류</th>
 										<td>
-											<select class="select" style="width:60%">
-												<option>선택</option>
+											<select id="pclInput" class="select" style="width:60%">
+												<option value="">선택</option>
+												<option value="J1939">J1939</option>
+												<option value="OBD2">OBD2</option>
 											</select>
 										</td>
+									</tr>
+
+									<tr>
+										<th>v2x연동키(trmnlId)</th>
+										<td><input id="v2xKeyInput" type="text" class="inp" placeholder="v2x연동키를 입력하세요"
+												style="width:60%"></td>
 									</tr>
 								</tbody>
 							</table>
@@ -893,8 +1023,8 @@
 							</div>
 						</div>
 						<div class="btn-area">
-							<a href="#" class="btn btn1">취소</a>
-							<a href="#" class="btn btn2">등록</a>
+							<a onclick="javascript:popupClose('Modal2');" class="btn btn1">취소</a>
+							<a id="vehicleReg" class="btn btn2">등록</a>
 						</div>
 					</div>
 				</div>
@@ -909,7 +1039,7 @@
 				<div class="popup" style="max-width:70rem">
 					<div class="popup-head">
 						<h3>계종명 변경</h3>
-						<button class="btn-close" onclick="javascript:popupClose('ModalUserName');"><span
+						<button class="btn-close-popup" onclick="javascript:popupClose('ModalUserName')"><span
 								class="hidden">닫기</span></button>
 					</div>
 					<div class="popup-body">
@@ -922,7 +1052,7 @@
 								<tbody>
 									<tr>
 										<th>계종명</th>
-										<td><input type="password" class="inp" placeholder="" style="width:70%"
+										<td><input type="text" class="inp" placeholder="" style="width:70%"
 												id="userNameInput"></td>
 									</tr>
 
@@ -931,7 +1061,7 @@
 						</div>
 
 						<div class="btn-area">
-							<a href="#" class="btn btn1">취소</a>
+							<a id="nameChangeClose" class="btn btn1">취소</a>
 							<a class="btn btn2" id="userNameChangeBtn">변경하기</a>
 						</div>
 					</div>
@@ -946,7 +1076,7 @@
 				<div class="popup" style="max-width:70rem">
 					<div class="popup-head">
 						<h3>아이디 변경</h3>
-						<button class="btn-close" onclick="javascript:popupClose('ModalId');"><span
+						<button class="btn-close-popup" onclick="javascript:popupClose('ModalId');"><span
 								class="hidden">닫기</span></button>
 					</div>
 					<div class="popup-body">
@@ -959,7 +1089,7 @@
 								<tbody>
 									<tr>
 										<th>아이디</th>
-										<td><input type="password" class="inp" placeholder="" style="width:70%"
+										<td><input type="text" class="inp" placeholder="" style="width:70%"
 												id="idInput"></td>
 									</tr>
 
@@ -968,7 +1098,7 @@
 						</div>
 
 						<div class="btn-area">
-							<a href="#" class="btn btn1">취소</a>
+							<a onclick="javascript:popupClose('ModalId');" class="btn btn1">취소</a>
 							<a class="btn btn2" id="idChangeBtn">변경하기</a>
 						</div>
 					</div>
@@ -984,7 +1114,7 @@
 				<div class="popup" style="max-width:70rem">
 					<div class="popup-head">
 						<h3>비밀번호 변경</h3>
-						<button class="btn-close" onclick="javascript:popupClose('ModalPw');"><span
+						<button class="btn-close-popup" onclick="javascript:popupClose('ModalPw');"><span
 								class="hidden">닫기</span></button>
 					</div>
 					<div class="popup-body">
@@ -1005,18 +1135,21 @@
 										<td>
 											<input type="password" class="inp" placeholder="" style="width:70%"
 												id="pwNewInput">
-											<div class="pw-check">
+											<!--
+												<div class="pw-check">
 												<div class="bar"><em
 														style="width:33.3333%;background-color: #E51626;"></em></div>
 												<p>비밀번호 안전도 : <span style="color:#E51626">사용불가</span></p>
-											</div>
+											</div>-->
 										</td>
 									</tr>
 									<tr>
 										<th>비밀번호 확인</th>
 										<td>
-											<input type="password" class="inp" placeholder="" style="width:70%">
-											<div class="pw-check">
+											<input id="pwNewInputCheck" type="password" class="inp" placeholder=""
+												style="width:70%">
+
+											<div class="pw-check" id="pw-match-check" style="display: none;">
 												<p><span style="color:#E51626">비밀번호가 일치하지 않습니다.</span></p>
 											</div>
 										</td>
@@ -1026,8 +1159,8 @@
 						</div>
 						<div class="desc2">위와 같이 비밀번호를 변경하시겠습니까?</div>
 						<div class="btn-area">
-							<a href="#" class="btn btn1">취소</a>
-							<a href="#" class="btn btn2" id="pwChangeBtn">변경하기</a>
+							<a onclick="javascript:popupClose('ModalPw');" class="btn btn1">취소</a>
+							<a class="btn btn2" id="pwChangeBtn">변경하기</a>
 						</div>
 					</div>
 				</div>
@@ -1036,7 +1169,7 @@
 	</div>
 	<script>
 		$(function () {
-
+			let accountInfo = {};
 			const token = sessionStorage.getItem('token');
 			if (!token) {
 				location.href = 'login.html';
@@ -1063,6 +1196,25 @@
 					$('#searchTrip').trigger('click');
 				}
 			});
+			//1234
+			$("#searchDeviceBtn").on("click", function () {
+				applySearchDevice();
+			});
+			$("#search_input_device").on("keyup", function (key) {
+				if (key.keyCode == 13) {
+					$('#searchDeviceBtn').trigger('click');
+				}
+			});
+			//---
+			$("#searchVehicleBtn").on("click", function () {
+				applySearchVehicleMng();
+			});
+			$("#search_input_vehicle").on("keyup", function (key) {
+				if (key.keyCode == 13) {
+					$('#searchVehicleBtn').trigger('click');
+				}
+			});
+			//
 			$("#startDate").on("change", function () {
 				console.log("startDate:", $(this).val(), " endDate:", $("#endDate").val());
 			});
@@ -1151,6 +1303,8 @@
 				popupClose('Modal1');
 				$(".alert-area").hide();
 				$("#vehicleDeviceMngContainer").show();
+				//renderDeviceList()
+				//renderVehicleList()
 
 			});
 			$("#settings").on("click", function () {
@@ -1163,14 +1317,26 @@
 				$("#tripHstrDetail").hide();
 				$(".alert-area").hide();
 				$("#vehicleDeviceMngContainer").show();
+				renderDeviceList()
+				renderVehicleList()
+			});
+			$("#vehicleDeviceMngBtn").on("click", function () {
+				$("#accountMngContainer").hide();
+				$("#vehicleDeviceMngContainer").show();
+				//renderDeviceList()
+				//renderVehicleList()
+
 			});
 			$("#accountMngBtn").on("click", function () {
 				$("#vehicleDeviceMngContainer").hide();
 				$("#accountMngContainer").show();
-				const accountInfo = get_me(token)
-				console.log(accountInfo)
-				// $("#accountMngContainer #accountUserName").text('');
-				// $("#accountMngContainer #accountId").text('');
+				accountInfo = get_me(token)
+				if (accountInfo['result']) {
+					$("#accountMngContainer #accountUserName").text(accountInfo['data']['accountName']);
+					$("#accountMngContainer #accountId").text(accountInfo['data']['accountId']);
+					$("#userNameInput").val(accountInfo['data']['accountName'])
+					$("#idInput").val(accountInfo['data']['accountId'])
+				}
 			});
 
 
@@ -1187,6 +1353,15 @@
 				sessionStorage.removeItem('token')
 				location.href = "./login.html"
 			});
+			$("#vehicleDeviceMngContainer").on("click", "#deleteVehicle", function () {
+
+				const key = $("selectedKey").val()
+				if (key) {
+					vehicleDelete(token, key)
+				}
+
+
+			});
 
 
 
@@ -1196,13 +1371,14 @@
 		function popupOpen(id) {
 			$('#' + id).fadeIn(300);
 			$('body').addClass('popup-on');
-			if (id = "Modal1" && $('#vinMismatch').val()) {
+			if (id === "Modal1" && $('#vinMismatch').val()) {
 				const itemObj = base64ToJsonObj($('#vinMismatch').val())
 				$('#Modal1 #deviceSn').text(itemObj.deviceSn)
 				$('#Modal1 #vehiclePlateNum').text(itemObj.plateNum)
 				$('#Modal1 #vehicleName').text(itemObj.plateNum)
 				$('#Modal1 #vinMismatchFix').on('click', function () {
 					const vinFix = vinMismatchFix(itemObj.vehicleKey, token)
+					console.log(vinFix)
 					if (vinFix['result'])
 						alert('연동 차량 유지 성공했습니다')
 					else
@@ -1210,7 +1386,7 @@
 				})
 
 			}
-			else if (id = "ModalUserName") {
+			else if (id === "ModalUserName") {
 
 				$('#ModalUserName #userNameChangeBtn').on('click', function () {
 					const nameData = nameChange(token, $("#userNameInput").val())
@@ -1219,8 +1395,11 @@
 					else
 						alert('계종 변경 실패했습니다')
 				})
+				$('#ModalUserName #nameChangeClose').on('click', function () {
+					popupClose("ModalUserName")
+				})
 			}
-			else if (id = "ModalId") {
+			else if (id === "ModalId") {
 				$('#ModalId #idChangeBtn').on('click', function () {
 					const idData = idChange(token, $("#idInput").val())
 					if (idData['result'])
@@ -1230,13 +1409,34 @@
 				})
 
 			}
-			else if (id = "ModalPw") {
+			else if (id === "ModalPw") {
 				$('#ModalPw #pwChangeBtn').on('click', function () {
+					var pw = $("#pwNewInput").val().trim().toLowerCase();
+					var pwCheck = $("#pwNewInputCheck").val().trim().toLowerCase();
+
+					if (pw !== pwCheck) {
+					$("pw-match-check").show()
+					return	
+					}
+                   $("pw-match-check").hide()
 					const pwData = pwChange(token, $("#pwOldInput").val(), $("#pwNewInput").val());
 					if (pwData['result'])
 						alert('비밀 번호 변경 성공했습니다')
 					else
 						alert('비밀번호 변경 실패했습니다')
+				})
+			}
+			else if (id === "Modal2") {
+				$('#Modal2 #vehicleReg').on('click', function () {
+					const regData = vehicleRegister(token, $("#deviceSnInput").text(), $("#vehiclePlateNumInput").val(), $("#pclInput").val(), $("#v2xKeyInput").val());
+					if (regData['result']) {
+						alert('등록 성공했습니다')
+						renderDeviceList()
+						renderVehicleList()
+					}
+					else
+						alert('등록 실패했습니다')
+					popupClose('Modal2')
 				})
 			}
 
@@ -1246,6 +1446,8 @@
 			$('#' + id).fadeOut(300);
 			$('body').removeClass('popup-on');
 			$('#vinMismatch').val('');
+			if (id === "ModalPw")
+				$("pw-match-check").hide()
 
 		}
 

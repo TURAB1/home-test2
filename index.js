@@ -11,7 +11,8 @@ let pathLine = null;
 let currentMarker = null;
 let startMarker = null;
 let endMarker = null;
-let pagerB, pagerC;
+let pagerB, pagerC, pagerDevice, pagerVehicleList;
+let _pageSize = 10;
 let isVehicleClick = false;
 const markerByKey = {}; // 차량 키별 마커 저장 객체
 const pathByKey = {}; // 차량 키별 경로 좌표 저장 객체
@@ -44,15 +45,15 @@ function connectWS() {
         $.extend(vehicle_data['data']['items'][id], newValue);
         // console.log("new_vehicle_data:", vehicle_data['data']['items'][id] );
         //forB
-        const positions = msg['positions'] || [];
-        const length = positions.length;
-        const vehicleKey = msg.vehicleKey;
-        if (length > 0)
-            positions.forEach(pos => {
-                if (!pathByKey[vehicleKey])
-                    pathByKey[vehicleKey] = [];
-                pathByKey[vehicleKey].push([pos.lat, pos.lon]);
-            });
+        // const positions = msg['positions'] || [];
+        // const length = positions.length;
+        // const vehicleKey = msg.vehicleKey;
+        // if (length > 0)
+        //     positions.forEach(pos => {
+        //         if (!pathByKey[vehicleKey])
+        //             pathByKey[vehicleKey] = [];
+        //         pathByKey[vehicleKey].push([pos.lat, pos.lon]);
+        //     });
         //forB
 
         switch (msg.type) {
@@ -391,10 +392,12 @@ function initMapA(mapContainer) {
 
     const markers = [];
     vehicle_data['data']['items'].forEach(p => {
-        const m = currentMarker = L.marker([p.latestLat, p.latestLon]).addTo(map).bindPopup(p.plateNum);
-        markerByKey[p.vehicleKey] = m; // 마커를 차량 키로 저장
-        m.addTo(markersLayer);// 마커 레이어에 추가(map에 직접 추가하지 않음)
-        markers.push(m);
+        if (p.latestLat && p.latestLon) {
+            const m = currentMarker = L.marker([p.latestLat, p.latestLon]).addTo(map).bindPopup(p.plateNum);
+            markerByKey[p.vehicleKey] = m; // 마커를 차량 키로 저장
+            m.addTo(markersLayer);// 마커 레이어에 추가(map에 직접 추가하지 않음)
+            markers.push(m);
+        }
 
     });
 
@@ -455,7 +458,7 @@ function drawExistingPath(vehicleKey, lat, lon) {
             coords.push([pc.lat, pc.lon]);
             pathByKey[vehicleKey].push([pc.lat, pc.lon]);
         });
-    console.log("trip coordsExist:", coords);
+    //console.log("trip coordsExist:", coords);
 
     // 기존 폴리라인이 있으면 제거
     if (pathLine) {
@@ -493,7 +496,7 @@ function tripHistoryDraw(vehicleKey, tripKey) {
     journeyData['data']['list'].forEach(pc => {
         coords.push([pc.lat, pc.lon]);
     });
-    console.log("trip coords:", coords);
+    //console.log("trip coords:", coords);
     //const coords = pathByKey[vehicleKey] || [];
     if (coords.length === 0) return;
     if (pathLine) {
@@ -584,9 +587,9 @@ function tripHistoryView() {
 }
 //123
 function renderStatusEvents(vehicleKey, tripEventKey) {
-   
-        const statusEvent = get_status_event(sessionStorage.getItem('token'), vehicleKey, tripEventKey);
-    
+
+    const statusEvent = get_status_event(sessionStorage.getItem('token'), vehicleKey, tripEventKey);
+
     console.log("statusEvent:", statusEvent);
     $(function () {
         pagerStatusEvent = new Paginator({
@@ -629,9 +632,9 @@ function renderStatusEvents(vehicleKey, tripEventKey) {
 }
 
 function renderTripHstrEvents(vehicleKey, tripEventKey) {
-        const tripEvent = get_trip_hstr_event(sessionStorage.getItem('token'), vehicleKey, tripEventKey);
-    
-    console.log("tripEvent:",tripEvent );
+    const tripEvent = get_trip_hstr_event(sessionStorage.getItem('token'), vehicleKey, tripEventKey);
+
+    console.log("tripEvent:", tripEvent);
     $(function () {
         pagerTripEvent = new Paginator({
             pagerSelector: "#pagerTripEvent",
@@ -672,113 +675,168 @@ function renderTripHstrEvents(vehicleKey, tripEventKey) {
 
 }
 
-function renderDevice1() {
-   
-     const  deviceList= get_device_list1(sessionStorage.getItem('token'));
+function renderDeviceList() {
+
+    const deviceList = get_device_list(sessionStorage.getItem('token'));
 
     console.log("devicelist1:", deviceList);
     $(function () {
-        pagerList1 = new Paginator({
-            pagerSelector: "#pagerList1",
-            listSelector: "#list1",
+        pagerDevice = new Paginator({
+            pagerSelector: "#pagerDevice",
+            listSelector: "#deviceList",
             pageSize: 10,
             windowSize: 5,
-            data: deviceList['data'],
+            data: deviceList['data']['items'],
             filterFn: function (item) {
-                if (!$.trim($("#search_input_trip").val()).toLowerCase()) return true;
+                if (!$.trim($("#search_input_device").val()).toLowerCase()) return true;
                 // 검색 필드 선택
-                var hay = (item.deviceSn + " " + item.vehicleKey).toLowerCase();
-                return hay.indexOf($.trim($("#search_input_trip").val()).toLowerCase()) !== -1;
+                var hay = (item.deviceSn).toLowerCase();
+                return hay.indexOf($.trim($("#search_input_device").val()).toLowerCase()) !== -1;
             },
             rowRenderer: function (item) {
-                const startTime = item.startTs ? list_date(item.startTs) : '-';
-                const endTime = item.endTs ? list_date(item.endTs) : '-';
                 return (
                     `
-                <tr class="vehicle-trip-item" data-vehicleKey="${item.vehicleKey}" data-tripKey="${item.tripKey}">
-                    <td>${item.deviceSn}</td>
-                    <td>${startTime}</td>
-                    <td>${endTime}</td>
-                </tr>
+                    <tr class="vehicle-device-item">
+                        <td>
+                        ${item.deviceSeries} ${item.deviceSn}
+                        </td>
+                        <td class="attach-vehicle-device" data-item="${item.deviceSn}"><button class="btn">차량·단말기 연동</button></td>
+                    </tr>
               `
                 );
             },
 
             emptyHtml: `
-                <tr class="vehicle-trip-item" >
+                <tr class="vehicle-device-item" >
                     <td colspan="3" class="text-center">데이터가 없습니다</td>
                 </tr>
               `
         });
-        pagerList1.go(1);
+        $("#devicePageSizeSelect").val(String(pagerDevice.pageSize));
+        pagerDevice.go(1);
 
-        $(".vehicle-trip-item").on("click", function () {
-            const vehicleKey = $(this).data("vehiclekey");
-            const tripKey = $(this).data("tripkey");
-            dataObj = vehicle_data['data']['items'].find(i => i.vehicleKey === vehicleKey);
-            console.log("Clicked vehicle data:", dataObj);
+        $(".attach-vehicle-device").on("click", function () {
 
-            tripHistoryDraw(vehicleKey, tripKey);
-            $("#tripHstrContainer").hide();
-            $("#tripHstrDetail").show();
+            popupOpen("Modal2")
+            const deviceSn = $(this).data('item')
+            $("#Modal2 #deviceSnInput").text(deviceSn)
+
+        });
+        $("#deviceDeviceageSizeSelect").on("change", function () {
+            pagerDevice.setPageSize($(this).val());
         });
 
     });
+     isVehicleClick = false;
 
 }
 
 
-function renderDevice2() {
-   
-     const  deviceList= get_device_list2(sessionStorage.getItem('token'));
+function renderVehicleList() {
 
-    console.log("devicelist1:", deviceList);
+    const vehicles = get_vehicle_data(token);
     $(function () {
-        pagerList2 = new Paginator({
-            pagerSelector: "#pagerList2",
-            listSelector: "#list2",
+        pagerVehicleList = new Paginator({
+            pagerSelector: "#pagerVehicleList",
+            listSelector: "#vehicleList",
             pageSize: 10,
             windowSize: 5,
-            data: deviceList['data'],
+            data: vehicles['data']['items'],
             filterFn: function (item) {
-                if (!$.trim($("#search_input_trip").val()).toLowerCase()) return true;
+                if (!$.trim($("#search_input_vehicle").val()).toLowerCase()) return true;
                 // 검색 필드 선택
-                var hay = (item.deviceSn + " " + item.vehicleKey).toLowerCase();
-                return hay.indexOf($.trim($("#search_input_trip").val()).toLowerCase()) !== -1;
+                var hay = (item.deviceSn + " " + item.plateNum).toLowerCase();
+                return hay.indexOf($.trim($("#search_input_vehicle").val()).toLowerCase()) !== -1;
             },
             rowRenderer: function (item) {
-                const startTime = item.startTs ? list_date(item.startTs) : '-';
-                const endTime = item.endTs ? list_date(item.endTs) : '-';
+                const deviceSn = item.deviceSn
+                const vehicleKey = item.vehicleKey
+
                 return (
                     `
-                <tr class="vehicle-trip-item" data-vehicleKey="${item.vehicleKey}" data-tripKey="${item.tripKey}">
-                    <td>${item.deviceSn}</td>
-                    <td>${startTime}</td>
-                    <td>${endTime}</td>
+                <tr class="vehicle-list-item "  >
+                    <td>
+                        <label><input data-item3="${vehicleKey}" type="checkbox" class="checkbox">
+                            <div><em></em></div>
+                        </label>
+                    </td>
+                    <td>${item.plateNum}</td>
+                    <td>
+                       ${item.device?.deviceSeries || ""} ${item.deviceSn || "-"}
+                    </td>
+                    <td>${item.pcl}</td>
+                    <td>${deviceSn ? "사용중" : "사용종료"}</td>
+                    <td class="attach-detach" data-item="${deviceSn}" data-item2="${vehicleKey}"><button class="btn">${deviceSn ? "차량·단말기 해제" : "차량·단말기 연동"}</button></td>
                 </tr>
               `
                 );
             },
 
             emptyHtml: `
-                <tr class="vehicle-trip-item" >
-                    <td colspan="3" class="text-center">데이터가 없습니다</td>
+                <tr class="vehicle-list-item" >
+                    <td colspan="6" class="text-center">데이터가 없습니다</td>
                 </tr>
               `
         });
-        pagerList2.go(1);
+        $("#vehiclePageSizeSelect").val(String(pagerVehicleList.pageSize));
 
-        $(".vehicle-trip-item").on("click", function () {
-            const vehicleKey = $(this).data("vehiclekey");
-            const tripKey = $(this).data("tripkey");
-            dataObj = vehicle_data['data']['items'].find(i => i.vehicleKey === vehicleKey);
-            console.log("Clicked vehicle data:", dataObj);
+        pagerVehicleList.go(1);
 
-            tripHistoryDraw(vehicleKey, tripKey);
-            $("#tripHstrContainer").hide();
-            $("#tripHstrDetail").show();
+        $(".attach-detach").on("click", function () {
+
+            const deviceSn = $(this).data("item");
+            const vehicleKey = $(this).data("item2");
+            console.log("dvcSn", deviceSn, "vk:", vehicleKey)
+            if (deviceSn)
+                deviceDettach(token, vehicleKey)
+            else
+                deviceAttach(token, vehicleKey, deviceSn)//deviceSn==null??
+
+
         });
+        $("#vehicleList").on("change", ".vehicle-list-item .checkbox", function () {
+            const $row = $(this).closest(".vehicle-list-item");
+            const vehicleKey = $(this).data("item3")
+
+            const $this = $(this);
+
+            if ($this.prop("checked")) {
+                // uncheck all other checkboxes
+                $(".vehicle-list-item .checkbox")
+                    .not(this)
+                    .prop("checked", false)
+                    .closest(".vehicle-list-item")
+                    .removeClass("selected");
+
+                // mark only this row
+                $this
+                    .closest(".vehicle-list-item")
+                    .addClass("selected");
+                $("selectedKey").val(vehicleKey)
+            } else {
+                // if unchecked, remove highlight
+                $this
+                    .closest(".vehicle-list-item")
+                    .removeClass("selected");
+                $("selectedKey").val("")
+            }
+        });
+
+        $("#vehiclePageSizeSelect").on("change", function () {
+
+            pagerVehicleList.setPageSize($(this).val());
+
+        });
+
 
     });
 
+}
+function applySearchDevice() {
+    pagerDevice.refresh();           // 현재 페이지에 필터를 다시 적용
+    pagerDevice.go(1);               // 사용자 경험 개선: 새 검색 시 1페이지로 재설정
+}
+function applySearchVehicleMng() {
+    pagerVehicleList.refresh();
+    pagerVehicleList.go(1);
 }

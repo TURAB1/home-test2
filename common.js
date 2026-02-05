@@ -224,7 +224,7 @@ function get_me(key) {
 
     $.ajax({
         type: "GET",
-        url: api_base_url + 'me',
+        url: api_base_url + 'account/me',
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Content-type", "application/json");
             xhr.setRequestHeader("Authorization", "Bearer " + key);
@@ -234,7 +234,7 @@ function get_me(key) {
         success: function (data) {
             loadingOff()
             result_data['result'] = true;
-            result_data['me'] = data['result'];
+            result_data['data'] = data;
         },
         error: function (request, status, error) {
             console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -375,7 +375,7 @@ function get_past_journey_data(vehicleKey, tripKey, token) {
     return result_data;
 }
 
-function vinMismatchFix(vehicleKey,token) {
+function vinMismatchFix(vehicleKey, token) {
 
     const result_data = {};
 
@@ -393,7 +393,49 @@ function vinMismatchFix(vehicleKey,token) {
         success: function () {
             loadingOff()
             result_data['result'] = true;
-           
+
+        },
+        error: function (request, status, error) {
+            console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+
+            result_data['status'] = request.status;
+            result_data['message'] = request.responseText;
+            result_data['error'] = error;
+            if (result_data['status'] === 200)
+                result_data['result'] = true;
+            else
+                result_data['result'] = false;
+
+        }
+    });
+
+    return result_data;
+}
+
+function nameChange(token, userName) {
+
+    const result_data = {};
+    let a_data = {
+        'newAccountName': userName
+
+    }
+
+    loadingOn()
+
+    $.ajax({
+        type: "PATCH",
+        url: api_base_url + 'account/name',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        data: JSON.stringify(a_data),
+        dataType: "json",
+        async: false,
+        success: function () {
+            loadingOff()
+            result_data['result'] = true;
+
         },
         error: function (request, status, error) {
             console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -407,11 +449,11 @@ function vinMismatchFix(vehicleKey,token) {
     return result_data;
 }
 
-function nameChange(token,userName) {
+function idChange(token, id) {
 
     const result_data = {};
-       let a_data = {
-        'accountName': userName
+    let a_data = {
+        'newAccountId': id
 
     }
 
@@ -419,7 +461,116 @@ function nameChange(token,userName) {
 
     $.ajax({
         type: "PATCH",
-        url: api_base_url + ' account/name',
+        url: api_base_url + 'account/id',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        data: JSON.stringify(a_data),
+        dataType: "json",
+        async: false,
+        success: function () {
+            loadingOff()
+            result_data['result'] = true;
+
+        },
+        error: function (request, status, error) {
+            console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            result_data['result'] = false;
+            result_data['status'] = request.status;
+            result_data['message'] = request.responseText;
+            result_data['error'] = error;
+        }
+    });
+
+    return result_data;
+}
+
+function pwChange(token, currentPw, newPw) {
+
+    const result_data = {};
+    let a_data = {
+        'currentPassword': currentPw,
+        'newPassword': newPw
+
+    };
+
+    loadingOn()
+
+    $.ajax({
+        type: "PATCH",
+        url: api_base_url + 'account/password',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        data: JSON.stringify(a_data),
+        dataType: "json",
+        async: false,
+        success: function () {
+            loadingOff()
+            result_data['result'] = true;
+
+        },
+        error: function (request, status, error) {
+            console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            result_data['result'] = false;
+            result_data['status'] = request.status;
+            result_data['message'] = request.responseText;
+            result_data['error'] = error;
+        }
+    });
+
+    return result_data;
+}
+
+function get_device_list(token) {
+
+    const result_data = {};
+    const a_data={
+        "searchIsFree":1
+    }
+
+    loadingOn()
+
+    $.ajax({
+        type: "GET",
+        url: api_base_url + 'device',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        data:a_data,
+        dataType: "json",
+        async: false,
+        success: function (data) {
+            loadingOff()
+            result_data['result'] = true;
+            result_data['data'] = data;
+        },
+        error: function (request, status, error) {
+            const result_data_err = result_data || {};
+            errorHandler(request, status, error, result_data_err);
+        }
+    });
+
+    return result_data;
+}
+
+function vehicleRegister(token,deviceSn,plateNum,pcl,v2xKey) {
+
+    const result_data = {};  
+ let a_data ={        
+        "deviceSn": deviceSn,
+        "plateNum": plateNum,
+        "pcl": pcl,
+        "v2xKey":v2xKey
+    };
+    loadingOn()
+
+    $.ajax({
+        type: "POST",
+        url: api_base_url + 'vehicle',
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Content-type", "application/json");
             xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -430,89 +581,130 @@ function nameChange(token,userName) {
         success: function () {
             loadingOff()
             result_data['result'] = true;
-           
+
         },
         error: function (request, status, error) {
             console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-            result_data['result'] = false;
+
             result_data['status'] = request.status;
             result_data['message'] = request.responseText;
             result_data['error'] = error;
+            // if (result_data['status']===200)
+            //        result_data['result'] = true;
+            // else
+            result_data['result'] = false;
+
         }
     });
 
     return result_data;
 }
 
-function idChange(token,id) {
+function deviceAttach(token,vehicleKey,deviceSn) {
 
-    const result_data = {};
-           let a_data = {
-        'accountId': id
-
-    }
+    const result_data = {};  
 
     loadingOn()
 
     $.ajax({
-        type: "PATCH",
-        url: api_base_url + ' account/id',
+        type: "POST",
+        url: api_base_url + 'vehicle/'+vehicleKey+"/device/"+deviceSn,
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Content-type", "application/json");
             xhr.setRequestHeader("Authorization", "Bearer " + token);
         },
-         data:JSON.stringify(a_data),
         dataType: "json",
         async: false,
         success: function () {
             loadingOff()
             result_data['result'] = true;
-           
+
         },
         error: function (request, status, error) {
             console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-            result_data['result'] = false;
+
             result_data['status'] = request.status;
             result_data['message'] = request.responseText;
             result_data['error'] = error;
+            // if (result_data['status']===200)
+            //        result_data['result'] = true;
+            // else
+            result_data['result'] = false;
+
         }
     });
 
     return result_data;
 }
 
-function pwChange(token,oldPw,newPw) {
+function deviceDettach(token,vehicleKey) {
 
-    const result_data = {};
-           let a_data = {
-        'accountOld': oldPw,
-        'accountNewPw':newPw
-
-    };
+    const result_data = {};  
 
     loadingOn()
 
     $.ajax({
-        type: "PATCH",
-        url: api_base_url + ' account/password',
+        type: "DELETE",
+        url: api_base_url + 'vehicle/'+vehicleKey+"/device",
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Content-type", "application/json");
             xhr.setRequestHeader("Authorization", "Bearer " + token);
         },
-         data:JSON.stringify(a_data),
         dataType: "json",
         async: false,
         success: function () {
             loadingOff()
             result_data['result'] = true;
-           
+
         },
         error: function (request, status, error) {
             console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-            result_data['result'] = false;
+
             result_data['status'] = request.status;
             result_data['message'] = request.responseText;
             result_data['error'] = error;
+            // if (result_data['status']===200)
+            //        result_data['result'] = true;
+            // else
+            result_data['result'] = false;
+
+        }
+    });
+
+    return result_data;
+}
+
+function vehicleDelete(token,vehicleKey) {
+
+    const result_data = {};  
+
+    loadingOn()
+
+    $.ajax({
+        type: "DELETE",
+        url: api_base_url + 'vehicle/'+vehicleKey,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        dataType: "json",
+        async: false,
+        success: function () {
+            loadingOff()
+            result_data['result'] = true;
+
+        },
+        error: function (request, status, error) {
+            console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+
+            result_data['status'] = request.status;
+            result_data['message'] = request.responseText;
+            result_data['error'] = error;
+            // if (result_data['status']===200)
+            //        result_data['result'] = true;
+            // else
+            result_data['result'] = false;
+
         }
     });
 
