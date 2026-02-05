@@ -726,14 +726,17 @@ function renderDeviceList() {
             pagerDevice.setPageSize($(this).val());
         });
 
+        $("#vehicleDeviceMngContainer #availableDeviceNum").text(deviceList['data']['items'].length)
+        isVehicleClick = false;
+
     });
-     isVehicleClick = false;
+
 
 }
 
 
 function renderVehicleList() {
-
+    let beingUsedCount = 0;
     const vehicles = get_vehicle_data(token);
     $(function () {
         pagerVehicleList = new Paginator({
@@ -751,6 +754,8 @@ function renderVehicleList() {
             rowRenderer: function (item) {
                 const deviceSn = item.deviceSn
                 const vehicleKey = item.vehicleKey
+                if (deviceSn)
+                    beingUsedCount++
 
                 return (
                     `
@@ -786,11 +791,18 @@ function renderVehicleList() {
 
             const deviceSn = $(this).data("item");
             const vehicleKey = $(this).data("item2");
+            var attachDettach;
             console.log("dvcSn", deviceSn, "vk:", vehicleKey)
             if (deviceSn)
-                deviceDettach(token, vehicleKey)
+                attachDettach = deviceDettach(token, vehicleKey)
             else
-                deviceAttach(token, vehicleKey, deviceSn)//deviceSn==null??
+                attachDettach = deviceAttach(token, vehicleKey, deviceSn)//deviceSn==null??
+            if (attachDettach['result']) {
+                renderDeviceList()
+                renderVehicleList()
+            } else {
+                alert("액션 실패했습니다")
+            }
 
 
         });
@@ -828,7 +840,8 @@ function renderVehicleList() {
 
         });
 
-
+        $("#vehicleDeviceMngContainer #beingUsedNum").text(beingUsedCount)
+        $("#vehicleDeviceMngContainer #useEndNum").text(vehicles['data']['items'].length - beingUsedCount)
     });
 
 }

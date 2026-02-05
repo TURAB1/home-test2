@@ -710,3 +710,84 @@ function vehicleDelete(token,vehicleKey) {
 
     return result_data;
 }
+
+function get_status_event(key,vehicleKey,tripEventKey) {
+
+    const result_data = {};
+    let a_data = {
+        'vehicleKey': vehicleKey,
+        'tripEventKey': tripEventKey
+    }
+
+    loadingOn()
+
+    $.ajax({
+        type: "GET",
+        url: api_base_url + 'event',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + key);
+        },
+        data: a_data,
+        dataType: "json",
+        async: false,
+        success: function (data) {
+            loadingOff()
+            result_data['result'] = true;
+            result_data['data'] = data;
+        },
+        error: function (request, status, error) {
+            console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+
+            result_data['status'] = request.status;
+            result_data['message'] = request.responseText;
+            result_data['error'] = error;
+            // if (result_data['status']===200)
+            //        result_data['result'] = true;
+            // else
+            result_data['result'] = false;
+        }
+    });
+
+    return result_data;
+}
+function get_trip_hstr_event(key,vehicleKey,tripEventKey) {
+
+    const result_data = {};
+    let a_data = {
+        'vehicleKey': vehicleKey,
+        'tripEventKey': tripEventKey
+    }
+
+    loadingOn()
+
+    $.ajax({
+        type: "GET",
+        url: api_base_url + 'event',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + key);
+        },
+        data: a_data,
+        dataType: "json",
+        async: false,
+        success: function (data) {
+            loadingOff()
+            result_data['result'] = true;
+            result_data['data'] = data;
+        },
+        error: function (request, status, error) {
+            console.log("error" + "\n" + "code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+
+            result_data['status'] = request.status;
+            result_data['message'] = request.responseText;
+            result_data['error'] = error;
+            // if (result_data['status']===200)
+            //        result_data['result'] = true;
+            // else
+            result_data['result'] = false;
+        }
+    });
+
+    return result_data;
+}

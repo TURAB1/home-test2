@@ -1411,15 +1411,16 @@
 			}
 			else if (id === "ModalPw") {
 				$('#ModalPw #pwChangeBtn').on('click', function () {
-					var pw = $("#pwNewInput").val().trim().toLowerCase();
+					var pwOld=$("#pwOldInput").val().trim().toLowerCase();
+					var pwNew = $("#pwNewInput").val().trim().toLowerCase();
 					var pwCheck = $("#pwNewInputCheck").val().trim().toLowerCase();
-
-					if (pw !== pwCheck) {
-					$("pw-match-check").show()
-					return	
+					
+					if (pwNew !== pwCheck) {
+						$("pw-match-check").show()
+						return
 					}
-                   $("pw-match-check").hide()
-					const pwData = pwChange(token, $("#pwOldInput").val(), $("#pwNewInput").val());
+					$("pw-match-check").hide()
+					const pwData = pwChange(token, pwOld, pwNew);
 					if (pwData['result'])
 						alert('비밀 번호 변경 성공했습니다')
 					else
