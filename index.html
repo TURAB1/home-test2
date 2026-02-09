@@ -19,6 +19,14 @@
 	<script src="js/common.js" type="text/javascript"></script>
 	<script src="js/index.js" type="text/javascript"></script>
 	<script src="js/paginator.js" type="text/javascript"></script>
+	<script>
+  (function () {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      location.replace('login.html');
+    }
+  })();
+</script>
 
 </head>
 
@@ -109,7 +117,18 @@
 									<tr>
 										<th>차량명</th>
 										<th>주행시작</th>
-										<th>상태 <img src="img/common/arrow_down.svg"></th>
+										<!--<th>상태 <img src="img/common/arrow_down.svg"></th>-->
+										<th>
+											<select id="stateSelect" class="select">
+												<option value="">상태 선택</option>
+												<option value="1">수동주행</option>
+												<option value="2">반자율주행(Lv.2)</option>
+												<option value="3">자율주행</option>
+												<option value="4">협력형자율주행</option>
+
+										</th>
+
+										</select>
 									</tr>
 								</thead>
 								<tbody id="listB">
@@ -197,97 +216,25 @@
 						<div class="table">
 							<table>
 								<colgroup>
-									<col style="width:33%">
-									<col style="width:33%">
-									<col style="width:33%">
+									<col style="width:40%">
+									<col style="width:60%">
+
 								</colgroup>
 								<thead>
 									<tr>
 										<th>발생일시</th>
 										<th>이벤트</th>
-										<th>속도</th>
+
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>LiDar 이상</td>
-										<td>10.1</td>
-									</tr>
-									<tr class="on">
-										<td>2025/12/18 16:00</td>
-										<td>자율주행 전환</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
+								<tbody id="listStatusEvent">
 								</tbody>
 							</table>
+							<div class="paging">
+								<div id="pagerStatusEvent" class="pager"></div>
+							</div>
 						</div>
-						<div class="paging">
-							<a href="#" class="first"><img src="img/common/paging_first.svg"></a>
-							<a href="#" class="prev"><img src="img/common/paging_prev.svg"></a>
-							<a href="#">1</a>
-							<a href="#">2</a>
-							<a href="#" class="active">3</a>
-							<a href="#">4</a>
-							<a href="#">5</a>
-							<a href="#" class="next"><img src="img/common/paging_next.svg"></a>
-							<a href="#" class="last"><img src="img/common/paging_last.svg"></a>
-						</div>
+
 					</div>
 					<button class="btn-toggle"><span class="hidden">토글</span></button>
 				</div>
@@ -346,7 +293,8 @@
 							</div>
 						</div>
 						<div class="car-info">
-							<div class="my-number"><strong>777마7777</strong> <button class="btn-refresh"></button></div>
+							<div class="my-number"><strong id="tripSn">777마7777</strong> <!--<button
+									class="btn-refresh"></button>--></div>
 							<div class="stat" style="display: none;">
 								<div class="box">
 									<dl>
@@ -387,13 +335,13 @@
 								<div class="box">
 									<dl>
 										<dt>주행거리</dt>
-										<dd>50km</dd>
+										<dd id="tripDistance">50km</dd>
 									</dl>
 								</div>
 							</div>
-							<div class="more">
+							<!-- <div class="more">
 								<button class="btn-tog active">주행정보 <img src="img/common/ico_btn_toggle.svg"></button>
-							</div>
+							</div> -->
 						</div>
 						<div class="gostop ">
 							<div class="icons">
@@ -404,11 +352,11 @@
 							<div class="vals">
 								<dl>
 									<dt>출발</dt>
-									<dd>2025/12/22 15:00</dd>
+									<dd id="tripStart">2025/12/22 15:00</dd>
 								</dl>
 								<dl>
 									<dt>도착</dt>
-									<dd>2025/12/22 15:00</dd>
+									<dd id="tripEnd">2025/12/22 15:00</dd>
 								</dl>
 							</div>
 						</div>
@@ -416,97 +364,26 @@
 						<div class="table">
 							<table>
 								<colgroup>
-									<col style="width:33%">
-									<col style="width:33%">
-									<col style="width:33%">
+									<col style="width:40%">
+									<col style="width:60%">
+
 								</colgroup>
 								<thead>
 									<tr>
 										<th>발생일시</th>
 										<th>이벤트</th>
-										<th>속도</th>
+
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>LiDar 이상</td>
-										<td>10.1</td>
-									</tr>
-									<tr class="on">
-										<td>2025/12/18 16:00</td>
-										<td>자율주행 전환</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
-									<tr>
-										<td>2025/12/18 16:00</td>
-										<td>-</td>
-										<td>20</td>
-									</tr>
+								<tbody id="listTripEvent">
+
 								</tbody>
 							</table>
+							<div class="paging">
+								<div id="pagerTripEvent" class="pager"></div>
+							</div>
 						</div>
-						<div class="paging">
-							<a href="#" class="first"><img src="img/common/paging_first.svg"></a>
-							<a href="#" class="prev"><img src="img/common/paging_prev.svg"></a>
-							<a href="#">1</a>
-							<a href="#">2</a>
-							<a href="#" class="active">3</a>
-							<a href="#">4</a>
-							<a href="#">5</a>
-							<a href="#" class="next"><img src="img/common/paging_next.svg"></a>
-							<a href="#" class="last"><img src="img/common/paging_last.svg"></a>
-						</div>
+
 					</div>
 					<button class="btn-toggle"><span class="hidden">토글</span></button>
 				</div>
@@ -537,7 +414,6 @@
 											class="hidden">검색</span></button>
 								</div>
 								<select id="devicePageSizeSelect" class="select">
-									<option value="2">2건씩 보기</option>
 									<option value="5">5건씩 보기</option>
 									<option value="10">10건씩 보기</option>
 									<option value="20">20건씩 보기</option>
@@ -584,7 +460,7 @@
 									<button id="deleteVehicle" class="btn-line">삭제 <img
 											src="img/common/alert_minus.svg"></button>
 									<select id="vehiclePageSizeSelect" class="select">
-										<option value="2">2건씩 보기</option>
+
 										<option value="5">5건씩 보기</option>
 										<option value="10">10건씩 보기</option>
 										<option value="20">20건씩 보기</option>
@@ -653,7 +529,7 @@
 						<div class="head">
 							<div class="tabs">
 								<a id="vehicleDeviceMngBtn">차량·단말 관리</a>
-								<a href="#" class="active">계정 관리</a>
+								<a class="active">계정 관리</a>
 							</div>
 							<div class="right">
 								<button class="btn-close"><span class="hidden">닫기</span></button>
@@ -719,17 +595,8 @@
 									</tbody>
 								</table>
 							</div>
-							<div class="paging">
-								<a href="#" class="first"><img src="img/common/paging_first.svg"></a>
-								<a href="#" class="prev"><img src="img/common/paging_prev.svg"></a>
-								<a href="#">1</a>
-								<a href="#">2</a>
-								<a href="#" class="active">3</a>
-								<a href="#">4</a>
-								<a href="#">5</a>
-								<a href="#" class="next"><img src="img/common/paging_next.svg"></a>
-								<a href="#" class="last"><img src="img/common/paging_last.svg"></a>
-							</div>
+
+
 							<div class="table-title">
 								<h3>차량 관리</h3>
 								<div class="hits">
@@ -795,17 +662,8 @@
 									</tbody>
 								</table>
 							</div>
-							<div class="paging">
-								<a href="#" class="first"><img src="img/common/paging_first.svg"></a>
-								<a href="#" class="prev"><img src="img/common/paging_prev.svg"></a>
-								<a href="#">1</a>
-								<a href="#">2</a>
-								<a href="#" class="active">3</a>
-								<a href="#">4</a>
-								<a href="#">5</a>
-								<a href="#" class="next"><img src="img/common/paging_next.svg"></a>
-								<a href="#" class="last"><img src="img/common/paging_last.svg"></a>
-							</div>
+
+
 						</div>
 						<div class="cont" id="Cont2">
 							<div class="table-title">
@@ -1135,12 +993,12 @@
 										<td>
 											<input type="password" class="inp" placeholder="" style="width:70%"
 												id="pwNewInput">
-											<!--
-												<div class="pw-check">
+
+											<div class="pw-check" id="pwStrengthCheck" style="display: none;">
 												<div class="bar"><em
 														style="width:33.3333%;background-color: #E51626;"></em></div>
-												<p>비밀번호 안전도 : <span style="color:#E51626">사용불가</span></p>
-											</div>-->
+												<p><span style="color:#E51626">4자리 이상 입력해주세요</span></p>
+											</div>
 										</td>
 									</tr>
 									<tr>
@@ -1172,7 +1030,7 @@
 			let accountInfo = {};
 			const token = sessionStorage.getItem('token');
 			if (!token) {
-				location.href = 'login.html';
+				location.href = 'login.html';	
 			}
 			console.log("vehicle_data", vehicle_data);
 			// 지도 초기화
@@ -1221,13 +1079,15 @@
 			$("#endDate").on("change", function () {
 				const startDate = get_timestamp($("#startDate").val());
 				const endDate = get_timestamp($(this).val());
-				const key = sessionStorage.getItem('token')
-				trip_history_data = get_trip_history_data(key, startDate, endDate);
-				console.log("trip_history_data2:", trip_history_data);
-				console.log("startDate:", startDate, " endDate:", endDate);
-				if (trip_history_data['result']) {
-					renderVehiclesC(startDate, endDate);
+				if (endDate > startDate) {
+					const key = sessionStorage.getItem('token')
+					trip_history_data = get_trip_history_data(key, startDate, endDate);
+					if (trip_history_data['result']) {
+						renderVehiclesC(startDate, endDate);
 
+					}
+				} else {
+					alert('끝날짜는 시작날짜 이상이어야 합니다')
 				}
 
 
@@ -1237,6 +1097,12 @@
 				$(".side").hide();
 			});
 
+			$("#btnToggleStatus").on("click", function () {
+				$(".side").hide();
+			});
+			$("#btnToggleTrip").on("click", function () {
+				$(".side").hide();
+			});
 
 			$("#vehicleStatus").on("click", function () {
 				$(this).addClass("active");
@@ -1303,8 +1169,8 @@
 				popupClose('Modal1');
 				$(".alert-area").hide();
 				$("#vehicleDeviceMngContainer").show();
-				//renderDeviceList()
-				//renderVehicleList()
+				renderDeviceList()
+				renderVehicleList()
 
 			});
 			$("#settings").on("click", function () {
@@ -1323,8 +1189,8 @@
 			$("#vehicleDeviceMngBtn").on("click", function () {
 				$("#accountMngContainer").hide();
 				$("#vehicleDeviceMngContainer").show();
-				//renderDeviceList()
-				//renderVehicleList()
+				// renderDeviceList()
+				// renderVehicleList()
 
 			});
 			$("#accountMngBtn").on("click", function () {
@@ -1351,15 +1217,34 @@
 			});
 			$("#logoutBtn").on("click", function () {
 				sessionStorage.removeItem('token')
+			    sessionStorage.removeItem('member')
+				localStorage.removeItem('auto_login');
+			
 				location.href = "./login.html"
 			});
-			$("#vehicleDeviceMngContainer").on("click", "#deleteVehicle", function () {
+			$("#deleteVehicle").on("click", function () {
 
-				const key = $("selectedKey").val()
+				const key = $("#selectedKey").val()
 				if (key) {
-					vehicleDelete(token, key)
+					const vehicleDel = vehicleDelete(token, key)
+					if (vehicleDel['result']) {
+						alert('차량 삭제 성공했습니다')
+						renderDeviceList()
+						renderVehicleList()
+					}
+					else
+						alert('차량 삭제 실패했습니다')
+
+				} else {
+					alert("삭제할 차량을 선택해주세요")
 				}
 
+
+			});
+
+			$("#stateSelect").on("change", function () {
+				const val = $(this).val()
+				renderVehiclesB()
 
 			});
 
@@ -1410,21 +1295,36 @@
 
 			}
 			else if (id === "ModalPw") {
-				$('#ModalPw #pwChangeBtn').on('click', function () {
-					var pwOld=$("#pwOldInput").val().trim().toLowerCase();
+				$("#pwChangeBtn").on('click', function () {
+					var pwOld = $("#pwOldInput").val().trim().toLowerCase();
 					var pwNew = $("#pwNewInput").val().trim().toLowerCase();
 					var pwCheck = $("#pwNewInputCheck").val().trim().toLowerCase();
-					
-					if (pwNew !== pwCheck) {
-						$("pw-match-check").show()
-						return
+					if (!pwOld || !pwNew || !pwCheck) {
+						alert("모든 항목을 입력해주세요")
+					} else {
+						if (pwNew.length < 4) {
+							$("#pwStrengthCheck").show()
+						} else {
+							$("#pwStrengthCheck").hide()
+							if (pwNew !== pwCheck) {
+								$("#pw-match-check").show()
+
+							} else {
+								$("#pw-match-check").hide()
+								const pwData = pwChange(token, pwOld, pwNew);
+								if (pwData['result']){ 
+									alert('비밀 번호 변경 성공했습니다')
+								}
+								else{
+									alert('비밀번호 변경 실패했습니다')
+									return
+								  }
+								popupClose('ModalPw')
+								return
+							}
+						}
 					}
-					$("pw-match-check").hide()
-					const pwData = pwChange(token, pwOld, pwNew);
-					if (pwData['result'])
-						alert('비밀 번호 변경 성공했습니다')
-					else
-						alert('비밀번호 변경 실패했습니다')
+
 				})
 			}
 			else if (id === "Modal2") {
@@ -1447,8 +1347,13 @@
 			$('#' + id).fadeOut(300);
 			$('body').removeClass('popup-on');
 			$('#vinMismatch').val('');
-			if (id === "ModalPw")
-				$("pw-match-check").hide()
+			if (id === "ModalPw") {
+				$("#pw-match-check").hide()
+				$("#pwStrengthCheck").hide()
+				$("#pwOldInput").val("")
+				$("#pwNewInput").val("")
+				$("#pwNewInputCheck").val("")
+			}
 
 		}
 
